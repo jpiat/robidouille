@@ -537,6 +537,102 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	return capture;
 }
 
+
+
+RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* config, RASPIVID_PROPERTIES* properties)
+{
+	RaspiCamCvCapture * capture = (RaspiCamCvCapture*)malloc(sizeof(RaspiCamCvCapture));
+	// Our main data storage vessel..
+	RASPIVID_STATE * state = (RASPIVID_STATE*)malloc(sizeof(RASPIVID_STATE));
+	capture->pState = state;
+	
+	MMAL_STATUS_T status = -1;
+	MMAL_PORT_T *camera_video_port = NULL;
+	MMAL_PORT_T *camera_still_port = NULL;
+
+	bcm_host_init();
+
+	default_status(state);
+	
+	if (config != NULL)	{
+		if (config->width != 0) 		state->width = config->width;
+		if (config->height != 0) 		state->height = config->height;
+		if (config->bitrate != 0) 		state->bitrate = config->bitrate;
+		if (config->framerate != 0) 	state->framerate = config->framerate;
+		if (config->monochrome != 0) 	state->monochrome = config->monochrome;
+	}
+
+	int w = state->width;
+	int h = state->height;
+	int pixelSize = state->monochrome ? 1 : 3;
+	state->dstImage = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
+
+	vcos_semaphore_create(&state->capture_sem, "Capture-Sem", 0);
+	vcos_semaphore_create(&state->capture_done_sem, "Capture-Done-Sem", 0);
+
+	// create camera
+	if (!create_camera_component(state))
+	{
+	   vcos_log_error("%s: Failed to create camera component", __func__);
+	   raspiCamCvReleaseCapture(&capture);
+	   return NULL;
+	}
+	
+	//Change flips based on config
+	raspicamcontrol_set_flips(state->camera_component, config->hflip, config->vflip);
+
+
+	if(properties != NULL){
+		if(properties->saturation >= 0) raspicamcontrol_set_saturation(state->camera_component, properties->saturation);
+		if(properties->sharpness >= 0) raspicamcontrol_set_sharpness(state->camera_component, properties->sharpness);
+		if(properties->contrast >= 0) raspicamcontrol_set_contrast(state->camera_component, properties->contrast);
+		if(properties->brightness >= 0) raspicamcontrol_set_brightness(state->camera_component, properties->brightness);
+		raspicamcontrol_set_exposure_mode(state->camera_component, (MMAL_PARAM_EXPOSUREMODE_T) properties->exposure);
+	}
+
+	camera_video_port = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
+	camera_still_port = state->camera_component->output[MMAL_CAMERA_CAPTURE_PORT];
+
+	// assign data to use for callback
+	camera_video_port->userdata = (struct MMAL_PORT_USERDATA_T *)state;
+
+	// start capture
+	if (mmal_port_parameter_set_boolean(camera_video_port, MMAL_PARAMETER_CAPTURE, 1) != MMAL_SUCCESS)
+	{
+	   vcos_log_error("%s: Failed to start capture", __func__);
+	   raspiCamCvReleaseCapture(&capture);
+	   return NULL;
+	}
+
+	// Send all the buffers to the video port
+		
+	int num = mmal_queue_length(state->video_pool->queue);
+	int q;
+	for (q = 0; q < num; q++)
+	{
+		MMAL_BUFFER_HEADER_T *buffer = mmal_queue_get(state->video_pool->queue);
+		
+		if (!buffer)
+			vcos_log_error("Unable to get a required buffer %d from pool queue", q);
+		
+		if (mmal_port_send_buffer(camera_video_port, buffer)!= MMAL_SUCCESS)
+			vcos_log_error("Unable to send a buffer to encoder output port (%d)", q);
+	}
+
+	//mmal_status_to_int(status);	
+		
+	// Disable all our ports that are not handled by connections
+	//check_disable_port(camera_still_port);
+
+	//if (status != 0)
+	//	raspicamcontrol_check_configuration(128);
+
+	vcos_semaphore_wait(&state->capture_done_sem);
+	return capture;
+}
+
+
+
 RaspiCamCvCapture * raspiCamCvCreateCameraCapture(int index)
 {
 	return raspiCamCvCreateCameraCapture2(index, NULL);

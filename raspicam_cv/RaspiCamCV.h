@@ -18,6 +18,32 @@ typedef struct
 	int vflip;
 } RASPIVID_CONFIG;
 
+enum exposure_mode{
+	OFF,
+	AUTO,
+	NIGHT,
+	NIGHT_PREVIEW
+	BACKLIGHT,
+	SPOTLIGHT,
+	SPORTS,
+	SNOW,
+	BEACH,
+	VERY_LONG,
+	FIXED_FPS,
+	ANTI_SHAKE,
+	FIREWORKS,
+	MAX = 0x7fffffff
+};
+
+typedef struct{
+	int sharpness = -1;
+	int contrast = -1;
+	int brightness = -1;
+	int saturation = -1 ;
+	enum exposure_mode exposure = AUTO;
+}RASPIVID_PROPERTIES;
+
+
 typedef struct {
 	RASPIVID_STATE * pState;
 } RaspiCamCvCapture;
@@ -32,6 +58,13 @@ enum
     RPI_CAP_PROP_FPS            =5,
     RPI_CAP_PROP_MONOCHROME		=19,
     RPI_CAP_PROP_BITRATE		=37   // no natural mapping here - used CV_CAP_PROP_SETTINGS
+    RPI_CAP_PROP_BRIGHTNESS    =10,
+    RPI_CAP_PROP_CONTRAST      =11,
+    RPI_CAP_PROP_SATURATION    =12,
+    RPI_CAP_PROP_HUE           =13,
+    RPI_CAP_PROP_GAIN          =14,
+    RPI_CAP_PROP_EXPOSURE      =15,
+
 };
 
 RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* config);
