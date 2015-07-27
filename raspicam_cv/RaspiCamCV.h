@@ -68,6 +68,7 @@ enum
 };
 
 RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* config);
+RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* config, RASPIVID_PROPERTIES* properties);
 RaspiCamCvCapture * raspiCamCvCreateCameraCapture(int index);
 void raspiCamCvReleaseCapture(RaspiCamCvCapture ** capture);
 double raspiCamCvGetCaptureProperty(RaspiCamCvCapture * capture, int property_id);
