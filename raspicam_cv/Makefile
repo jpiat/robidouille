@@ -41,6 +41,12 @@ TARGETS = libraspicamcv.a raspicamtest libraspicamcv.so
 
 all: $(TARGETS)
 
+install : libraspicamcv.so libraspicamcv.a 
+	install libraspicamcv.so /usr/local/lib
+	install libraspicamcv.a /usr/local/lib
+	cp  RaspiCamCV.h /usr/local/include
+
+
 $(OBJS)/%.o: %.c
 	gcc -c $(CFLAGS) $< -o $@
 

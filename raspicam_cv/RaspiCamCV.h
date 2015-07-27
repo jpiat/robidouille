@@ -9,11 +9,13 @@ typedef struct _RASPIVID_STATE RASPIVID_STATE;
 
 typedef struct
 {
-	int width;              
-	int height;             
-	int bitrate;            
-	int framerate;          
-	int monochrome;			
+	int width;
+	int height;
+	int bitrate;
+	int framerate;
+	int monochrome;
+	int hflip;
+	int vflip;
 } RASPIVID_CONFIG;
 
 typedef struct {

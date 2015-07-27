@@ -492,6 +492,9 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	   raspiCamCvReleaseCapture(&capture);
 	   return NULL;
 	}
+	
+	//Change flips based on config
+	raspicamcontrol_set_flips(state->camera_component, config->hflip, config->vflip);
 
 	camera_video_port = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
 	camera_still_port = state->camera_component->output[MMAL_CAMERA_CAPTURE_PORT];
