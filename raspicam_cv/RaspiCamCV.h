@@ -18,11 +18,11 @@ typedef struct
 	int vflip;
 } RASPIVID_CONFIG;
 
-enum exposure_mode{
+enum exposure_mode {
 	OFF,
 	AUTO,
 	NIGHT,
-	NIGHT_PREVIEW
+	NIGHT_PREVIEW,
 	BACKLIGHT,
 	SPOTLIGHT,
 	SPORTS,
@@ -31,17 +31,16 @@ enum exposure_mode{
 	VERY_LONG,
 	FIXED_FPS,
 	ANTI_SHAKE,
-	FIREWORKS,
-	MAX = 0x7fffffff
+	FIREWORKS
 };
 
-typedef struct{
-	int sharpness = -1;
-	int contrast = -1;
-	int brightness = -1;
-	int saturation = -1 ;
-	enum exposure_mode exposure = AUTO;
-}RASPIVID_PROPERTIES;
+typedef struct {
+	int sharpness ;
+	int contrast ;
+	int brightness ;
+	int saturation ;
+	enum exposure_mode exposure ;
+} RASPIVID_PROPERTIES;
 
 
 typedef struct {
@@ -57,7 +56,7 @@ enum
     RPI_CAP_PROP_FRAME_HEIGHT   =4,
     RPI_CAP_PROP_FPS            =5,
     RPI_CAP_PROP_MONOCHROME		=19,
-    RPI_CAP_PROP_BITRATE		=37   // no natural mapping here - used CV_CAP_PROP_SETTINGS
+    RPI_CAP_PROP_BITRATE		=37,   // no natural mapping here - used CV_CAP_PROP_SETTINGS
     RPI_CAP_PROP_BRIGHTNESS    =10,
     RPI_CAP_PROP_CONTRAST      =11,
     RPI_CAP_PROP_SATURATION    =12,
