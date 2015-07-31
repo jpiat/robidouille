@@ -14,8 +14,6 @@ typedef struct
 	int bitrate;
 	int framerate;
 	int monochrome;
-	int hflip;
-	int vflip;
 } RASPIVID_CONFIG;
 
 enum exposure_mode {
@@ -39,6 +37,8 @@ typedef struct {
 	int contrast ;
 	int brightness ;
 	int saturation ;
+	int hflip;
+	int vflip;
 	enum exposure_mode exposure ;
 } RASPIVID_PROPERTIES;
 

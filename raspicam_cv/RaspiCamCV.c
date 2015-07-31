@@ -562,6 +562,16 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 		if (config->monochrome != 0) 	state->monochrome = config->monochrome;
 	}
 
+	if(properties != NULL){
+			state->camera_parameters.brightness = properties->brightness;
+			state->camera_parameters.contrast = properties->contrast;
+			state->camera_parameters.sharpness = properties->sharpness;
+			state->camera_parameters.saturation = properties->saturation;
+			state->camera_parameters.hflip = properties->hflip;
+			state->camera_parameters.vflip = properties->vflip;
+			state->camera_parameters.exposureMode = properties->exposure;
+	}
+
 	int w = state->width;
 	int h = state->height;
 	int pixelSize = state->monochrome ? 1 : 3;
@@ -578,18 +588,6 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 	   return NULL;
 	}
 	
-	//Change flips based on config
-	raspicamcontrol_set_flips(state->camera_component, config->hflip, config->vflip);
-
-
-	if(properties != NULL){
-		if(properties->saturation >= 0) raspicamcontrol_set_saturation(state->camera_component, properties->saturation);
-		if(properties->sharpness >= 0) raspicamcontrol_set_sharpness(state->camera_component, properties->sharpness);
-		if(properties->contrast >= 0) raspicamcontrol_set_contrast(state->camera_component, properties->contrast);
-		if(properties->brightness >= 0) raspicamcontrol_set_brightness(state->camera_component, properties->brightness);
-		raspicamcontrol_set_exposure_mode(state->camera_component, (MMAL_PARAM_EXPOSUREMODE_T) properties->exposure);
-	}
-
 	camera_video_port = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
 	camera_still_port = state->camera_component->output[MMAL_CAMERA_CAPTURE_PORT];
 
