@@ -536,7 +536,7 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 
 
 
-RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* config, RASPIVID_PROPERTIES* properties)
+RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* config, RASPIVID_PROPERTIES* properties, int non_blocking)
 {
 	RaspiCamCvCapture * capture = (RaspiCamCvCapture*)malloc(sizeof(RaspiCamCvCapture));
 	// Our main data storage vessel..
@@ -621,8 +621,7 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 
 	//if (status != 0)
 	//	raspicamcontrol_check_configuration(128);
-
-	//vcos_semaphore_wait(&state->capture_done_sem);
+	if(non_blocking == 0) vcos_semaphore_wait(&state->capture_done_sem);
 	return capture;
 }
 
@@ -669,10 +668,9 @@ IplImage * raspiCamCvQueryFrame(RaspiCamCvCapture * capture)
 int raspiCamCvGrab(RaspiCamCvCapture * capture)
 {
         VCOS_STATUS_T  status ;
-	RASPIVID_STATE * state = capture->pState;
-        
+	RASPIVID_STATE * state = capture->pState;        
 	status = vcos_semaphore_trywait(&state->capture_done_sem);
-	if(status == VCOS_EAGAIN) return  0 ;
+	if(status == VCOS_EAGAIN) return  0 ; //No frame available
 	vcos_semaphore_post(&state->capture_sem);
         return 1 ;
 }
