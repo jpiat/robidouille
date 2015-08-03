@@ -492,9 +492,6 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	   raspiCamCvReleaseCapture(&capture);
 	   return NULL;
 	}
-	
-	//Change flips based on config
-	raspicamcontrol_set_flips(state->camera_component, config->hflip, config->vflip);
 
 	camera_video_port = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
 	camera_still_port = state->camera_component->output[MMAL_CAMERA_CAPTURE_PORT];
@@ -625,7 +622,7 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 	//if (status != 0)
 	//	raspicamcontrol_check_configuration(128);
 
-	vcos_semaphore_wait(&state->capture_done_sem);
+	//vcos_semaphore_wait(&state->capture_done_sem);
 	return capture;
 }
 
@@ -668,3 +665,22 @@ IplImage * raspiCamCvQueryFrame(RaspiCamCvCapture * capture)
 
 	return state->dstImage;
 }
+
+int raspiCamCvGrab(RaspiCamCvCapture * capture)
+{
+        VCOS_STATUS_T  status ;
+	RASPIVID_STATE * state = capture->pState;
+        
+	status = vcos_semaphore_trywait(&state->capture_done_sem);
+	if(status == VCOS_EAGAIN) return  0 ;
+	vcos_semaphore_post(&state->capture_sem);
+        return 1 ;
+}
+
+IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture)
+{
+	RASPIVID_STATE * state = capture->pState;
+        return state->dstImage;
+}
+
+

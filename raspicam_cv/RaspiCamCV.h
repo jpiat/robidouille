@@ -74,6 +74,9 @@ double raspiCamCvGetCaptureProperty(RaspiCamCvCapture * capture, int property_id
 int raspiCamCvSetCaptureProperty(RaspiCamCvCapture * capture, int property_id, double value);
 IplImage * raspiCamCvQueryFrame(RaspiCamCvCapture * capture);
 
+int raspiCamCvGrab(RaspiCamCvCapture * capture);
+IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture);
+
 #ifdef __cplusplus
 }
 #endif
