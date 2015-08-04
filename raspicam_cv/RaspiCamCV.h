@@ -37,6 +37,7 @@ typedef struct {
 	int contrast ;
 	int brightness ;
 	int saturation ;
+	int shutter_speed ;
 	int hflip;
 	int vflip;
 	enum exposure_mode exposure ;

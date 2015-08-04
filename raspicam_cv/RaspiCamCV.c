@@ -577,6 +577,7 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 			state->camera_parameters.hflip = properties->hflip;
 			state->camera_parameters.vflip = properties->vflip;
 			state->camera_parameters.exposureMode = properties->exposure;
+			state->camera_parameters.shutter_speed = properties->shutter_speed;
 	}
 
 	int w = state->width;
