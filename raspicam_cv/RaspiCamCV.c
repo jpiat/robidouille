@@ -538,7 +538,14 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 }
 
 
-
+/**
+*\brief Create a capture device for the camera
+*\param index camera index
+*\param config Configuration for the camera (framerate, resolution , ...)
+*\param properties Capture properties (exposure, brightness ...)
+*\param non_blocking Allow to setup the device for non-blocking capture (use cvGrab and cvRetrieve functions)
+*\return The created capture device, NULL if something went wrong
+*/
 RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* config, RASPIVID_PROPERTIES* properties, int non_blocking)
 {
 	RaspiCamCvCapture * capture = (RaspiCamCvCapture*)malloc(sizeof(RaspiCamCvCapture));
@@ -666,7 +673,6 @@ IplImage * raspiCamCvQueryFrame(RaspiCamCvCapture * capture)
 	RASPIVID_STATE * state = capture->pState;
 	vcos_semaphore_post(&state->capture_sem);
 	vcos_semaphore_wait(&state->capture_done_sem);
-
 	return state->dstImages[state->dstImageIndex];
 }
 
@@ -676,14 +682,14 @@ int raspiCamCvGrab(RaspiCamCvCapture * capture)
 	RASPIVID_STATE * state = capture->pState;        
 	status = vcos_semaphore_trywait(&state->capture_done_sem);
 	if(status == VCOS_EAGAIN) return  0 ; //No frame available
-	vcos_semaphore_post(&state->capture_sem);
+	vcos_semaphore_post(&state->capture_sem); // One frame is available, trigger capture of the next one
         return 1 ;
 }
 
 IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture)
 {
 	RASPIVID_STATE * state = capture->pState;
-        return state->dstImages[state->dstImageIndex];
+        return state->dstImages[state->dstImageIndex]; // retrieve last acquired frame
 }
 
 
