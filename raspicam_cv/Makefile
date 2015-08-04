@@ -14,8 +14,8 @@ CFLAGS_PI = \
 
 LDFLAGS_PI = -L$(USERLAND_ROOT)/build/lib -lmmal_core -lmmal -l mmal_util -lvcos -lbcm_host
 
-BUILD_TYPE=debug
-#BUILD_TYPE=release
+#BUILD_TYPE=debug
+BUILD_TYPE=release
 
 CFLAGS_COMMON = -Wno-multichar -g $(CFLAGS_OPENCV) $(CFLAGS_PI) -MD
 
