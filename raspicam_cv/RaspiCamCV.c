@@ -95,7 +95,8 @@ typedef struct _RASPIVID_STATE
 
 	MMAL_POOL_T *video_pool; /// Pointer to the pool of buffers used by encoder output port
 
-	IplImage *dstImage;
+	IplImage * dstImages [2];
+	int dstImageIndex ;
 
 	VCOS_SEMAPHORE_T capture_sem;
 	VCOS_SEMAPHORE_T capture_done_sem;
@@ -154,7 +155,8 @@ static void video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffe
 			int h=state->height;
 
 			int pixelSize = state->monochrome ? 1 : 3;
-			memcpy(state->dstImage->imageData,buffer->data,w*h*pixelSize);	
+			state->dstImageIndex = state->dstImageIndex ? 0 : 1 ;
+			memcpy(state->dstImages[state->dstImageIndex]->imageData,buffer->data,w*h*pixelSize);	
 
 			vcos_semaphore_post(&state->capture_done_sem);
 			vcos_semaphore_wait(&state->capture_sem);
@@ -480,8 +482,9 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	int w = state->width;
 	int h = state->height;
 	int pixelSize = state->monochrome ? 1 : 3;
-	state->dstImage = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
-
+	state->dstImages[0] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
+	state->dstImages[1] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
+	state->dstImageIndex = 0 ;
 	vcos_semaphore_create(&state->capture_sem, "Capture-Sem", 0);
 	vcos_semaphore_create(&state->capture_done_sem, "Capture-Done-Sem", 0);
 
@@ -572,8 +575,9 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 	int w = state->width;
 	int h = state->height;
 	int pixelSize = state->monochrome ? 1 : 3;
-	state->dstImage = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
-
+	state->dstImages[0] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
+	state->dstImages[1] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
+	state->dstImageIndex = 0 ;
 	vcos_semaphore_create(&state->capture_sem, "Capture-Sem", 0);
 	vcos_semaphore_create(&state->capture_done_sem, "Capture-Done-Sem", 0);
 
@@ -649,7 +653,8 @@ void raspiCamCvReleaseCapture(RaspiCamCvCapture ** capture)
 
 	destroy_camera_component(state);
 
-	cvReleaseImage(&state->dstImage);
+	cvReleaseImage(&(state->dstImages[0]));
+	cvReleaseImage(&(state->dstImages[1]));
 
 	free(state);
 	free(*capture);
@@ -662,7 +667,7 @@ IplImage * raspiCamCvQueryFrame(RaspiCamCvCapture * capture)
 	vcos_semaphore_post(&state->capture_sem);
 	vcos_semaphore_wait(&state->capture_done_sem);
 
-	return state->dstImage;
+	return state->dstImages[state->dstImageIndex];
 }
 
 int raspiCamCvGrab(RaspiCamCvCapture * capture)
@@ -678,7 +683,7 @@ int raspiCamCvGrab(RaspiCamCvCapture * capture)
 IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture)
 {
 	RASPIVID_STATE * state = capture->pState;
-        return state->dstImage;
+        return state->dstImages[state->dstImageIndex];
 }
 
 
