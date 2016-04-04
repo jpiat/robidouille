@@ -1,7 +1,7 @@
 OBJS = objs
 
 CFLAGS_OPENCV = -I/usr/local/include/opencv
-LDFLAGS2_OPENCV = -L/usr/local/lib -lopencv_highgui -lopencv_core -lopencv_legacy -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_imgproc -lpthread -lm
+LDFLAGS2_OPENCV = -L/usr/local/lib -lopencv_highgui -lopencv_core -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_imgproc -lpthread -lm
 
 USERLAND_ROOT ?= $(HOME)/git/raspberry/userland
 CFLAGS_PI = \
