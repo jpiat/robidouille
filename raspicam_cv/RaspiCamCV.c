@@ -334,9 +334,6 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
 	raspicamcontrol_set_all_parameters(camera, &state->camera_parameters);
 	
 	state->camera_component = camera;
-	flash_init();
-	flash_set_period(1);
-	flash_set_duty(1);	
 	return camera;
 
 error:
@@ -698,4 +695,14 @@ IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture)
 
 void raspiCamCvSetFlashPeriod(unsigned char period){
 	flash_set_period(period);
+}
+
+void raspiCamCvSetFlashDuty(unsigned char duty){
+        flash_set_duty(duty);
+}
+
+void raspiCamCvFlashEnable(unsigned char pin){
+        flash_init(pin);
+	flash_set_period(1);
+        flash_set_duty(1);  
 }

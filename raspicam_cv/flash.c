@@ -3,10 +3,13 @@
 unsigned char period_counter = 0 ;
 unsigned char period_reload = 0 ;
 unsigned char duty_cycle = 0 ;
+unsigned char led_pin = 7 ;
 
-void flash_init(){
+
+void flash_init(unsigned char pin){
   wiringPiSetup() ;
-  pinMode (LED_PIN, OUTPUT) ;
+  led_pin = pin ;
+  pinMode (led_pin, OUTPUT) ;
   period_counter = 0 ;
   period_reload =  0;
 }
@@ -20,12 +23,12 @@ void flash_set_duty(unsigned char duty){
 
 void flash_update(){
 	if(duty_cycle == 0){
-		digitalWrite (LED_PIN, LOW);
+		digitalWrite (led_pin, LOW);
 	}else if(duty_cycle == 255){
-		digitalWrite (LED_PIN, HIGH);
+		digitalWrite (led_pin, HIGH);
 	}else if(period_counter > duty_cycle){
-		digitalWrite (LED_PIN, HIGH);
-	}else  digitalWrite (LED_PIN, LOW);
+		digitalWrite (led_pin, HIGH);
+	}else  digitalWrite (led_pin, LOW);
 
 	if(period_counter == 0) period_counter = period_reload ;
 	else period_counter -- ;
