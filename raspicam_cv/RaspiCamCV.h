@@ -77,6 +77,7 @@ IplImage * raspiCamCvQueryFrame(RaspiCamCvCapture * capture);
 
 int raspiCamCvGrab(RaspiCamCvCapture * capture);
 IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture);
+void raspiCamCvSetFlashPeriod(unsigned char period);
 
 #ifdef __cplusplus
 }
