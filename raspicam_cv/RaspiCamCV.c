@@ -147,7 +147,7 @@ static void video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffe
 		if (buffer->length)
 		{
 			mmal_buffer_header_mem_lock(buffer);
- 			flash_toggle();
+ 			flash_update();
 			//
 			// *** PR : OPEN CV Stuff here !
 			//
@@ -334,7 +334,9 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
 	raspicamcontrol_set_all_parameters(camera, &state->camera_parameters);
 	
 	state->camera_component = camera;
-	flash_init();	
+	flash_init();
+	flash_set_period(1);
+	flash_set_duty(1);	
 	return camera;
 
 error:
