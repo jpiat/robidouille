@@ -122,7 +122,7 @@ static void default_status(RASPIVID_STATE *state)
    state->framerate 		= VIDEO_FRAME_RATE_NUM;
    state->immutableInput 	= 1;
    state->monochrome 		= 0;		// Gray (1) much faster than color (0)
-   
+
    // Set up the camera_parameters to default
    raspicamcontrol_set_defaults(&state->camera_parameters);
 }
@@ -136,7 +136,7 @@ static void default_status(RASPIVID_STATE *state)
 static void video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
 {
 	MMAL_BUFFER_HEADER_T *new_buffer;
-	RASPIVID_STATE * state = (RASPIVID_STATE *)port->userdata;		
+	RASPIVID_STATE * state = (RASPIVID_STATE *)port->userdata;
 
 	if (state)
 	{
@@ -148,17 +148,14 @@ static void video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffe
 		{
 			mmal_buffer_header_mem_lock(buffer);
  			flash_update();
-			//
-			// *** PR : OPEN CV Stuff here !
-			//
 
 			int w=state->width;	// get image size
 			int h=state->height;
 
+			int copy_size = (state->dstImages[state->dstImageIndex]->height) * (state->dstImages[state->dstImageIndex]->widthStep);
 
-			int pixelSize = state->monochrome ? 1 : 3;
 			state->dstImageIndex = state->dstImageIndex ? 0 : 1 ;
-			memcpy(state->dstImages[state->dstImageIndex]->imageData,buffer->data,buffer->length); //buffer is larger than actual image
+			memcpy(state->dstImages[state->dstImageIndex]->imageData,buffer->data, copy_size); //buffer is larger than actual image
 
 			vcos_semaphore_post(&state->capture_done_sem);
 			vcos_semaphore_wait(&state->capture_sem);
@@ -208,25 +205,25 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
 	MMAL_ES_FORMAT_T *format;
 	MMAL_PORT_T *preview_port = NULL, *video_port = NULL, *still_port = NULL;
 	MMAL_STATUS_T status;
-	
+
 	/* Create the component */
 	status = mmal_component_create(MMAL_COMPONENT_DEFAULT_CAMERA, &camera);
-	
+
 	if (status != MMAL_SUCCESS)
 	{
 	   vcos_log_error("Failed to create camera component");
 	   goto error;
 	}
-	
+
 	if (!camera->output_num)
 	{
 	   vcos_log_error("Camera doesn't have output ports");
 	   goto error;
 	}
-	
+
 	video_port = camera->output[MMAL_CAMERA_VIDEO_PORT];
 	still_port = camera->output[MMAL_CAMERA_CAPTURE_PORT];
-	
+
 	//  set up the camera configuration
 	{
 	   MMAL_PARAMETER_CAMERA_CONFIG_T cam_config =
@@ -267,15 +264,15 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
 	format->es->video.crop.height = state->height;
 	format->es->video.frame_rate.num = state->framerate;
 	format->es->video.frame_rate.den = VIDEO_FRAME_RATE_DEN;
-	
+
 	status = mmal_port_format_commit(video_port);
 	if (status)
 	{
 	   vcos_log_error("camera video format couldn't be set");
 	   goto error;
 	}
-	
-	// PR : plug the callback to the video port 
+
+	// PR : plug the callback to the video port
 	status = mmal_port_enable(video_port, video_buffer_callback);
 	if (status)
 	{
@@ -308,7 +305,7 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
       goto error;
    }
 
-	
+
 	//PR : create pool of message on video port
 	MMAL_POOL_T *pool;
 	video_port->buffer_size = video_port->buffer_size_recommended;
@@ -323,18 +320,18 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
 	/* Ensure there are enough buffers to avoid dropping frames */
 	if (still_port->buffer_num < VIDEO_OUTPUT_BUFFERS_NUM)
 	   still_port->buffer_num = VIDEO_OUTPUT_BUFFERS_NUM;
-	
+
 	/* Enable component */
 	status = mmal_component_enable(camera);
-	
+
 	if (status)
 	{
 	   vcos_log_error("camera component couldn't be enabled");
 	   goto error;
 	}
-	
+
 	raspicamcontrol_set_all_parameters(camera, &state->camera_parameters);
-	
+
 	state->camera_component = camera;
 	return camera;
 
@@ -495,9 +492,7 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	state->dstImages[1]->width = w ;
 	state->dstImages[1]->height = h;
 	state->dstImages[1]->widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
-	
-	
-	
+
 	state->dstImageIndex = 0 ;
 	vcos_semaphore_create(&state->capture_sem, "Capture-Sem", 0);
 	vcos_semaphore_create(&state->capture_done_sem, "Capture-Done-Sem", 0);
@@ -597,8 +592,22 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 	int w = state->width;
 	int h = state->height;
 	int pixelSize = state->monochrome ? 1 : 3;
-	state->dstImages[0] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
-	state->dstImages[1] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
+	//printf("Adjusted size is : %u x %u \n", VCOS_ALIGN_UP(w, 32), VCOS_ALIGN_UP(h, 16));
+	//state->dstImages[0] = cvCreateImage(cvSize(VCOS_ALIGN_UP(w, 32),VCOS_ALIGN_UP(h, 16)), IPL_DEPTH_8U, pixelSize); //final picture to di$
+        //state->dstImages[1] = cvCreateImage(cvSize(VCOS_ALIGN_UP(w, 32),VCOS_ALIGN_UP(h, 16)), IPL_DEPTH_8U, pixelSize); // final picture to d$
+        state->dstImages[0] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); //final picture to
+        state->dstImages[1] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to
+	//re-setting image size to what user passed
+        /*state->dstImages[0]->width = w ;
+        state->dstImages[0]->height = h;
+        state->dstImages[0]->widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
+
+        state->dstImages[1]->width = w ;
+        state->dstImages[1]->height = h;
+        state->dstImages[1]->widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
+	*/
+
+
 	state->dstImageIndex = 0 ;
 	vcos_semaphore_create(&state->capture_sem, "Capture-Sem", 0);
 	vcos_semaphore_create(&state->capture_done_sem, "Capture-Done-Sem", 0);
