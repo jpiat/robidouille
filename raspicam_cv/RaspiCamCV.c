@@ -257,8 +257,8 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
 		format->encoding_variant = MMAL_ENCODING_RGB24;
 	}
 
-	format->es->video.width = state->width;
-	format->es->video.height = state->height;
+	format->es->video.width = VCOS_ALIGN_UP(state->width, 32);
+	format->es->video.height = VCOS_ALIGN_UP(state->height, 16);
 	format->es->video.crop.x = 0;
 	format->es->video.crop.y = 0;
 	format->es->video.crop.width = state->width;
@@ -290,8 +290,8 @@ static MMAL_COMPONENT_T *create_camera_component(RASPIVID_STATE *state)
    format = still_port->format;
    format->encoding = MMAL_ENCODING_OPAQUE;
    format->encoding_variant = MMAL_ENCODING_I420;
-   format->es->video.width = state->width;
-   format->es->video.height = state->height;
+   format->es->video.width = VCOS_ALIGN_UP(state->width, 32);
+   format->es->video.height = VCOS_ALIGN_UP(state->height, 16);
    format->es->video.crop.x = 0;
    format->es->video.crop.y = 0;
    format->es->video.crop.width = state->width;
@@ -693,16 +693,11 @@ IplImage * raspiCamCvRetrieve(RaspiCamCvCapture * capture)
 }
 
 
-void raspiCamCvSetFlashPeriod(unsigned char period){
-	flash_set_period(period);
+void raspiCamCvSetFlashPattern(unsigned char * pattern, unsigned char pattern_length){
+         flash_set_pattern(pattern, pattern_length);
 }
 
-void raspiCamCvSetFlashDuty(unsigned char duty){
-        flash_set_duty(duty);
-}
-
-void raspiCamCvFlashEnable(unsigned char pin){
-        flash_init(pin);
-	flash_set_period(1);
-        flash_set_duty(1);  
+unsigned char raspiCamCvFlashEnable(unsigned char pin){
+        unsigned char index = flash_init(pin);
+	return index ;
 }
