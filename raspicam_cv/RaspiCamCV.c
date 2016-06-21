@@ -100,7 +100,7 @@ typedef struct _RASPIVID_STATE
 
 	VCOS_SEMAPHORE_T capture_sem;
 	VCOS_SEMAPHORE_T capture_done_sem;
-   
+
 } RASPIVID_STATE;
 
 static void default_status(RASPIVID_STATE *state)
@@ -151,12 +151,14 @@ static void video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffe
 			//
 			// *** PR : OPEN CV Stuff here !
 			//
+
 			int w=state->width;	// get image size
 			int h=state->height;
 
+
 			int pixelSize = state->monochrome ? 1 : 3;
 			state->dstImageIndex = state->dstImageIndex ? 0 : 1 ;
-			memcpy(state->dstImages[state->dstImageIndex]->imageData,buffer->data,w*h*pixelSize);	
+			memcpy(state->dstImages[state->dstImageIndex]->imageData,buffer->data,w*h*pixelSize);
 
 			vcos_semaphore_post(&state->capture_done_sem);
 			vcos_semaphore_wait(&state->capture_sem);
@@ -481,6 +483,8 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	int w = state->width;
 	int h = state->height;
 	int pixelSize = state->monochrome ? 1 : 3;
+
+	//should use VCOS_ALIGN_UP to compute width and height and then set image ROI to inner w*h image
 	state->dstImages[0] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
 	state->dstImages[1] = cvCreateImage(cvSize(w,h), IPL_DEPTH_8U, pixelSize); // final picture to display
 	state->dstImageIndex = 0 ;
