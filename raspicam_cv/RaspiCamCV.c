@@ -488,13 +488,13 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture2(int index, RASPIVID_CONFIG* c
 	state->dstImages[0] = cvCreateImage(cvSize(VCOS_ALIGN_UP(w, 32),VCOS_ALIGN_UP(h, 16)), IPL_DEPTH_8U, pixelSize); //final picture to display
 	state->dstImages[1] = cvCreateImage(cvSize(VCOS_ALIGN_UP(w, 32),VCOS_ALIGN_UP(h, 16)), IPL_DEPTH_8U, pixelSize); // final picture to display
 	//re-setting image size to what user passed
-	state->dstImages[0].width = w ;
-	state->dstImages[0].height = h;
-	state->dstImages[0].widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
+	state->dstImages[0]->width = w ;
+	state->dstImages[0]->height = h;
+	state->dstImages[0]->widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
 
-	state->dstImages[1].width = w ;
-	state->dstImages[1].height = h;
-	state->dstImages[1].widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
+	state->dstImages[1]->width = w ;
+	state->dstImages[1]->height = h;
+	state->dstImages[1]->widthStep = VCOS_ALIGN_UP(w, 32) * pixelSize ;
 	
 	
 	
