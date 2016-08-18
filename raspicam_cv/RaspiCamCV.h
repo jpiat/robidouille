@@ -40,6 +40,9 @@ typedef struct {
 	int shutter_speed ;
 	int hflip;
 	int vflip;
+	int awb;
+	int awb_gr;
+	int awb_gb ;
 	enum exposure_mode exposure ;
 } RASPIVID_PROPERTIES;
 
