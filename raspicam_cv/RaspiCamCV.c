@@ -587,6 +587,9 @@ RaspiCamCvCapture * raspiCamCvCreateCameraCapture3(int index, RASPIVID_CONFIG* c
 			state->camera_parameters.vflip = properties->vflip;
 			state->camera_parameters.exposureMode = properties->exposure;
 			state->camera_parameters.shutter_speed = properties->shutter_speed;
+			state->camera_parameters.awbMode = (properties->awb > 0) ? MMAL_PARAM_AWBMODE_AUTO : MMAL_PARAM_AWBMODE_OFF ;
+			state->camera_parameters.awb_gains_r = properties->awb_gr ;
+			state->camera_parameters.awb_gains_b = properties->awb_gb ;
 	}
 
 	int w = state->width;
