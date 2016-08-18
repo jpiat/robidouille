@@ -41,8 +41,8 @@ typedef struct {
 	int hflip;
 	int vflip;
 	int awb;
-	int awb_gr;
-	int awb_gb ;
+	float awb_gr;
+	float awb_gb ;
 	enum exposure_mode exposure ;
 } RASPIVID_PROPERTIES;
 
